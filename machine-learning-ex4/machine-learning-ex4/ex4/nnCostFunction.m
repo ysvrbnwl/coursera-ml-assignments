@@ -65,6 +65,23 @@ Theta2_grad = zeros(size(Theta2));
 
 
 
+for trainingExampleIndex = 1 : m
+  trainingExample =  transpose([1, X(trainingExampleIndex, :)]);
+  outputLayer1 = Theta1 * trainingExample;
+  outputLayerWithBias = [1; outputLayer1];
+  hthetaX = Theta2 * outputLayerWithBias;
+  
+  loghthetaX = log(hthetaX);
+  otherlogthetaX = log(1 - hthetaX);
+  yActual = zeros(1,10);
+  yActual(1, y(trainingExampleIndex,1)) = 1;
+  jforMthExample =  ( (-1 * yActual) * loghthetaX ) - ( (1 - yActual) * otherlogthetaX );
+  J = J + jforMthExample;
+end
+
+J = J / m;
+
+
 
 
 

@@ -66,13 +66,12 @@ Theta2_grad = zeros(size(Theta2));
 
 
 for trainingExampleIndex = 1 : m
-  trainingExample =  transpose([1, X(trainingExampleIndex, :)]);
-  outputLayer1 = Theta1 * trainingExample;
-  outputLayerWithBias = [1; outputLayer1];
-  hthetaX = Theta2 * outputLayerWithBias;
+  a1 = transpose([1, X(trainingExampleIndex, :)]);
+  a2 = [1; sigmoid(Theta1 * a1)];
+  a3 = sigmoid(Theta2 * a2);
   
-  loghthetaX = log(hthetaX);
-  otherlogthetaX = log(1 - hthetaX);
+  loghthetaX = log(a3);
+  otherlogthetaX = log(1 - a3);
   yActual = zeros(1,10);
   yActual(1, y(trainingExampleIndex,1)) = 1;
   jforMthExample =  ( (-1 * yActual) * loghthetaX ) - ( (1 - yActual) * otherlogthetaX );
@@ -81,18 +80,28 @@ end
 
 J = J / m;
 
+regulaized = (lambda/(2*m))*(sum(sum(Theta1.^2)) + sum(sum(Theta2.^2)));
+J = J + regulaized;
 
+accumulatedGradient2 = 0;
+accumulatedGradient3 = 0;
+for i = 1 : m
+  yActual = zeros(1,10);
+  yActual(1, y(i,1)) = 1;
+  a1 = transpose([1, X(i, :)]);
+  z2 = Theta1 * a1;
+  a2 = [1; sigmoid(z2)];
+  z3 = Theta2 * a2;
+  a3 = sigmoid(z3);  
+  
+  d3 = a3 - transpose(yActual);
+  temp1 = (transpose(Theta2) * d3);
+  d2 = temp1(2:end, 1) .* sigmoidGradient(z2);
+  accumulatedGradient2 = accumulatedGradient2 + (d3*transpose(a2));
+  
+end
 
-
-
-
-
-
-
-
-
-
-
+D2 = accumulatedGradient2/m;
 
 
 

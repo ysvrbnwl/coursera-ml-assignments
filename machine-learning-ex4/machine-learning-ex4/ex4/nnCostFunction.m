@@ -62,31 +62,11 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
-
-
-
-for trainingExampleIndex = 1 : m
-  a1 = transpose([1, X(trainingExampleIndex, :)]);
-  a2 = [1; sigmoid(Theta1 * a1)];
-  a3 = sigmoid(Theta2 * a2);
-  
-  loghthetaX = log(a3);
-  otherlogthetaX = log(1 - a3);
-  yActual = zeros(1,10);
-  yActual(1, y(trainingExampleIndex,1)) = 1;
-  jforMthExample =  ( (-1 * yActual) * loghthetaX ) - ( (1 - yActual) * otherlogthetaX );
-  J = J + jforMthExample;
-end
-
-J = J / m;
-
-regulaized = (lambda/(2*m))*(sum(sum(Theta1.^2)) + sum(sum(Theta2.^2)));
-J = J + regulaized;
-
 accumulatedGradient2 = 0;
-accumulatedGradient3 = 0;
+accumulatedGradient1 = 0;
+
 for i = 1 : m
-  yActual = zeros(1,10);
+  yActual = zeros(1,num_labels);
   yActual(1, y(i,1)) = 1;
   a1 = transpose([1, X(i, :)]);
   z2 = Theta1 * a1;
@@ -94,16 +74,36 @@ for i = 1 : m
   z3 = Theta2 * a2;
   a3 = sigmoid(z3);  
   
+  
+  loghthetaX = log(a3);
+  otherlogthetaX = log(1 - a3);
+  jforMthExample =  ( (-1 * yActual) * loghthetaX ) - ( (1 - yActual) * otherlogthetaX );
+  J = J + jforMthExample;
+  
+  
   d3 = a3 - transpose(yActual);
   temp1 = (transpose(Theta2) * d3);
   d2 = temp1(2:end, 1) .* sigmoidGradient(z2);
+  accumulatedGradient1 = accumulatedGradient1 + (d2*transpose(a1));
   accumulatedGradient2 = accumulatedGradient2 + (d3*transpose(a2));
+  
   
 end
 
-D2 = accumulatedGradient2/m;
+J = J / m;
 
+regulaized = (lambda/(2*m))*(sum(sum(Theta1(:, 2:end).^2)) + sum(sum(Theta2(:,2:end).^2)));
+J = J + regulaized;
 
+D1 = (1/m).*accumulatedGradient1;
+D2 = (1/m).*accumulatedGradient2;
+temp3 = D1(:,2:end)+((lambda/m).*(Theta1(:,2:end)));
+temp4 = D2(:,2:end)+((lambda/m).*(Theta2(:,2:end)));
+D1 = [D1(:,1) temp3];
+D2 = [D2(:,1) temp4];
+
+Theta1_grad = D1;
+Theta2_grad = D2;
 
 
 % -------------------------------------------------------------
